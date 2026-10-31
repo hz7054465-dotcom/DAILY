@@ -50,6 +50,12 @@
         "projectId": "c6e26c68-c371-4b8e-b5f4-c50ae23d8a8a"
       }
     },
-    "owner": "hesham-zidans-team"
+    "owner": "hesham-zidans-team",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/c6e26c68-c371-4b8e-b5f4-c50ae23d8a8a"
+    }
   }
 }
