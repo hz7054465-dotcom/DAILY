@@ -55,6 +55,7 @@ export default function HomeScreen() {
             done={map.get(item.id)?.has(today) ?? false}
             streak={getCurrentStreak(item, map.get(item.id), today)}
             onToggle={() => toggleCompletion(item.id)}
+            onLongPress={() => router.push({ pathname: "/add-habit", params: { id: item.id } })}
           />
         )}
       />

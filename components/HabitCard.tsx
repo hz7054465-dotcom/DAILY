@@ -9,12 +9,13 @@ interface Props {
   done: boolean;
   streak: number;
   onToggle: () => void;
+  onLongPress?: () => void;
 }
 
-export default function HabitCard({ habit, done, streak, onToggle }: Props) {
+export default function HabitCard({ habit, done, streak, onToggle, onLongPress }: Props) {
   const Icon = getHabitIcon(habit.icon);
   return (
-    <Pressable onPress={onToggle} style={({ pressed }) => [styles.card, pressed && { opacity: 0.8 }]}>
+    <Pressable onPress={onToggle} onLongPress={onLongPress} style={({ pressed }) => [styles.card, pressed && { opacity: 0.8 }]}>
       <View style={styles.iconBox}>
         <Icon color={colors.primary} size={22} />
       </View>
