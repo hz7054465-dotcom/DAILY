@@ -1,7 +1,10 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Check, Flame } from 'lucide-react-native';
 import { colors, radius, spacing } from '@/constants/theme';
 import { getHabitIcon } from '@/constants/icons';
+import { getAccent, tint } from '@/constants/accents';
+import { formatSchedule } from '@/utils/dates';
 import { Habit } from '@/types/habit';
 
 interface Props {
@@ -14,35 +17,60 @@ interface Props {
 
 export default function HabitCard({ habit, done, streak, onToggle, onLongPress }: Props) {
   const Icon = getHabitIcon(habit.icon);
+  const accent = getAccent(habit.icon);
+  const press = useRef(new Animated.Value(1)).current;
+  const pop = useRef(new Animated.Value(done ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.spring(pop, { toValue: done ? 1 : 0, friction: 5, tension: 160, useNativeDriver: true }).start();
+  }, [done, pop]);
+
+  const to = (v: number) => Animated.spring(press, { toValue: v, friction: 6, useNativeDriver: true }).start();
+
   return (
-    <Pressable onPress={onToggle} onLongPress={onLongPress} style={({ pressed }) => [styles.card, pressed && { opacity: 0.8 }]}>
-      <View style={styles.iconBox}>
-        <Icon color={colors.primary} size={22} />
-      </View>
-      <View style={styles.info}>
-        <Text style={[styles.name, done && styles.nameDone]} numberOfLines={1}>{habit.name}</Text>
-        {streak > 0 ? (
-          <View style={styles.streakRow}>
-            <Flame color={colors.textSecondary} size={13} />
-            <Text style={styles.streak}>{streak} day streak</Text>
+    <Animated.View style={{ transform: [{ scale: press }] }}>
+      <Pressable
+        onPress={onToggle}
+        onLongPress={onLongPress}
+        onPressIn={() => to(0.97)}
+        onPressOut={() => to(1)}
+        style={[styles.card, done && styles.cardDone]}
+      >
+        <View style={[styles.iconBox, { backgroundColor: tint(accent) }]}>
+          <Icon color={accent} size={22} />
+        </View>
+        <View style={styles.info}>
+          <Text style={[styles.name, done && styles.nameDone]} numberOfLines={1}>{habit.name}</Text>
+          <View style={styles.metaRow}>
+            <Text style={styles.meta}>{formatSchedule(habit.selectedDays)}</Text>
+            {streak > 0 ? (
+              <View style={styles.streakRow}>
+                <Flame color={accent} size={12} />
+                <Text style={[styles.meta, { color: accent }]}>{streak}</Text>
+              </View>
+            ) : null}
           </View>
-        ) : null}
-      </View>
-      <View style={[styles.check, done && styles.checkDone]}>
-        {done ? <Check color="#fff" size={18} /> : null}
-      </View>
-    </Pressable>
+        </View>
+        <View style={[styles.check, done && styles.checkDone]}>
+          <Animated.View style={{ transform: [{ scale: pop }], opacity: pop }}>
+            <Check color="#fff" size={18} />
+          </Animated.View>
+        </View>
+      </Pressable>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   card: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.md, borderWidth: 1, borderColor: colors.border, marginBottom: spacing.sm },
-  iconBox: { width: 44, height: 44, borderRadius: radius.md, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' },
+  cardDone: { opacity: 0.85 },
+  iconBox: { width: 46, height: 46, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
   info: { flex: 1, marginHorizontal: spacing.md },
   name: { color: colors.text, fontSize: 16, fontWeight: '600' },
   nameDone: { color: colors.textSecondary, textDecorationLine: 'line-through' },
-  streakRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4, gap: 4 },
-  streak: { color: colors.textSecondary, fontSize: 12 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 4 },
+  meta: { color: colors.textSecondary, fontSize: 12 },
+  streakRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   check: { width: 30, height: 30, borderRadius: 15, borderWidth: 2, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
   checkDone: { backgroundColor: colors.success, borderColor: colors.success },
 });

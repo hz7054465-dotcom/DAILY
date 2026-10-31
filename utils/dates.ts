@@ -85,3 +85,11 @@ export function getGreeting(date: Date = new Date()): string {
 export function generateId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
+
+/** 'Every day' or 'Sat · Mon · Wed' (week order starts on Saturday). */
+export function formatSchedule(days: number[]): string {
+  if (days.length === 7) return 'Every day';
+  return WEEK_DISPLAY_ORDER.filter((d) => days.includes(d))
+    .map((d) => WEEKDAY_SHORT[d])
+    .join(' · ');
+}
