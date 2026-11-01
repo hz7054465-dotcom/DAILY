@@ -30,7 +30,9 @@ interface HabitsContextValue {
   loading: boolean;
   addHabit: (input: NewHabitInput) => Promise<void>;
   updateHabit: (id: string, input: NewHabitInput) => Promise<void>;
-  archiveHabit: (id: string) => Promise<void>;
+  deleteHabit: (id: string) => Promise<void>;
+  restoreHabit: (id: string) => Promise<void>;
+  purgeHabit: (id: string) => Promise<void>;
   toggleCompletion: (habitId: string) => Promise<void>;
   reorderHabits: (orderedVisibleIds: string[]) => Promise<void>;
 }
@@ -52,10 +54,18 @@ export function HabitsProvider({ children }: { children: React.ReactNode }) {
     (async () => {
       const [h, c] = await Promise.all([loadHabits(), loadCompletions()]);
       if (cancelled) return;
-      habitsRef.current = h;
-      completionsRef.current = c;
-      setHabits(h);
-      setCompletions(c);
+      // Anything still soft-deleted at launch was never undone: remove it for good.
+      const gone = new Set(h.filter((x) => x.isArchived).map((x) => x.id));
+      const keptHabits = h.filter((x) => !x.isArchived).map((x, idx) => ({ ...x, order: idx }));
+      const keptCompletions = c.filter((x) => !gone.has(x.habitId));
+      habitsRef.current = keptHabits;
+      completionsRef.current = keptCompletions;
+      setHabits(keptHabits);
+      setCompletions(keptCompletions);
+      if (gone.size > 0) {
+        saveHabits(keptHabits).catch(() => {});
+        saveCompletions(keptCompletions).catch(() => {});
+      }
       setLoading(false);
     })();
     return () => {
@@ -117,15 +127,38 @@ export function HabitsProvider({ children }: { children: React.ReactNode }) {
     [commitHabits]
   );
 
-  const archiveHabit = useCallback(
+  // Soft delete: hidden everywhere, but can be undone until purged.
+  const deleteHabit = useCallback(
     async (id: string) => {
       await commitHabits(
-        habitsRef.current.map((h) =>
-          h.id === id ? { ...h, isArchived: true } : h
-        )
+        habitsRef.current.map((h) => (h.id === id ? { ...h, isArchived: true } : h))
       );
     },
     [commitHabits]
+  );
+
+  const restoreHabit = useCallback(
+    async (id: string) => {
+      await commitHabits(
+        habitsRef.current.map((h) => (h.id === id ? { ...h, isArchived: false } : h))
+      );
+    },
+    [commitHabits]
+  );
+
+  // Permanent delete (habit + its completions). Only for soft-deleted habits.
+  const purgeHabit = useCallback(
+    async (id: string) => {
+      const target = habitsRef.current.find((h) => h.id === id);
+      if (!target || !target.isArchived) return;
+      await commitCompletions(completionsRef.current.filter((c) => c.habitId !== id));
+      await commitHabits(
+        habitsRef.current
+          .filter((h) => h.id !== id)
+          .map((h, idx) => ({ ...h, order: idx }))
+      );
+    },
+    [commitHabits, commitCompletions]
   );
 
   // Reorders only the habits shown today; the others keep their slots.
@@ -171,11 +204,13 @@ export function HabitsProvider({ children }: { children: React.ReactNode }) {
       loading,
       addHabit,
       updateHabit,
-      archiveHabit,
+      deleteHabit,
+      restoreHabit,
+      purgeHabit,
       toggleCompletion,
       reorderHabits,
     }),
-    [habits, completions, today, loading, addHabit, updateHabit, archiveHabit, toggleCompletion, reorderHabits]
+    [habits, completions, today, loading, addHabit, updateHabit, deleteHabit, restoreHabit, purgeHabit, toggleCompletion, reorderHabits]
   );
 
   return <HabitsContext.Provider value={value}>{children}</HabitsContext.Provider>;

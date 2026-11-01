@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { radius, spacing } from '@/constants/theme';
@@ -16,7 +16,7 @@ import { dayKey } from '@/constants/i18n';
 export default function AddHabitScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
-  const { habits, addHabit, updateHabit, archiveHabit } = useHabits();
+  const { habits, addHabit, updateHabit } = useHabits();
   const { settings } = useSettings();
   const { t } = useI18n();
   const { colors } = useTheme();
@@ -49,20 +49,6 @@ export default function AddHabitScreen() {
     }
   };
 
-  const onArchive = () => {
-    if (!editing) return;
-    Alert.alert('Archive habit?', 'It will be hidden from Home and statistics.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Archive',
-        style: 'destructive',
-        onPress: async () => {
-          await archiveHabit(editing.id);
-          router.back();
-        },
-      },
-    ]);
-  };
 
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
@@ -112,11 +98,6 @@ export default function AddHabitScreen() {
         <Pressable onPress={() => router.back()} style={styles.cancel}>
           <Text style={styles.cancelText}>{t('habit.cancel')}</Text>
         </Pressable>
-        {editing ? (
-          <Pressable onPress={onArchive} style={styles.cancel}>
-            <Text style={[styles.cancelText, { color: '#EF4444' }]}>Archive habit</Text>
-          </Pressable>
-        ) : null}
       </ScrollView>
     </SafeAreaView>
   );
