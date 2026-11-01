@@ -24,7 +24,7 @@ describe('i18n', () => {
   });
 
   it('builds the schedule label in the chosen week order', () => {
-    const t = (k: never) => translate('en', k);
+    const t = (k: Parameters<typeof translate>[1]) => translate('en', k);
     expect(scheduleLabel([6, 0, 1], 6, t)).toBe('Sat · Sun · Mon');
     expect(scheduleLabel([6, 0, 1], 0, t)).toBe('Sun · Mon · Sat');
     expect(scheduleLabel([0, 1, 2, 3, 4, 5, 6], 6, t)).toBe('Every day');

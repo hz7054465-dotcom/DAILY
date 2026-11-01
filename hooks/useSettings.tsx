@@ -14,27 +14,50 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [ready, setReady] = useState(false);
   const latest = useRef<Settings>(DEFAULT_SETTINGS);
+  const loaded = useRef(false);
+  const pending = useRef<Partial<Settings>>({});
+  const queue = useRef<Promise<void>>(Promise.resolve());
+
+  const persist = useCallback((value: Settings) => {
+    queue.current = queue.current
+      .then(() => saveSettings(value))
+      .catch(() => {});
+    return queue.current;
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
     loadSettings().then((s) => {
       if (cancelled) return;
-      latest.current = s;
-      setSettings(s);
+      const hasPending = Object.keys(pending.current).length > 0;
+      const merged = { ...s, ...pending.current };
+      pending.current = {};
+      loaded.current = true;
+      latest.current = merged;
+      setSettings(merged);
       setReady(true);
+      if (hasPending) persist(merged);
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [persist]);
 
-  // Every change is saved instantly (no "Save" button).
-  const update = useCallback(async (patch: Partial<Settings>) => {
-    const next = { ...latest.current, ...patch };
-    latest.current = next;
-    setSettings(next);
-    await saveSettings(next);
-  }, []);
+  // Every change is saved instantly (no "Save" button), in order.
+  const update = useCallback(
+    async (patch: Partial<Settings>) => {
+      if (!loaded.current) {
+        pending.current = { ...pending.current, ...patch };
+        setSettings((prev) => ({ ...prev, ...patch }));
+        return;
+      }
+      const next = { ...latest.current, ...patch };
+      latest.current = next;
+      setSettings(next);
+      await persist(next);
+    },
+    [persist]
+  );
 
   const value = useMemo(() => ({ settings, ready, update }), [settings, ready, update]);
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
