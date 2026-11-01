@@ -66,8 +66,8 @@ export function daysBetween(a: string, b: string): number {
   return Math.round(ms / 86400000);
 }
 
-export function formatLongDate(value: string): string {
-  return parseDateString(value).toLocaleDateString('en-US', {
+export function formatLongDate(value: string, locale: string = 'en-US'): string {
+  return parseDateString(value).toLocaleDateString(locale, {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -97,4 +97,11 @@ export function formatSchedule(days: number[], weekStart: number = WEEK_START_DA
 /** Weekday numbers in display order, starting from the given day. */
 export function getWeekDisplayOrder(weekStart: number = WEEK_START_DAY): number[] {
   return Array.from({ length: 7 }, (_, i) => (weekStart + i) % 7);
+}
+
+export function getGreetingPeriod(date: Date = new Date()): 'morning' | 'afternoon' | 'evening' {
+  const hour = date.getHours();
+  if (hour < 12) return 'morning';
+  if (hour < 18) return 'afternoon';
+  return 'evening';
 }

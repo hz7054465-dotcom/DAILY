@@ -5,7 +5,9 @@ import type { ThemeColors } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useMemo } from 'react';
 import { Habit, HabitCompletion } from '@/types/habit';
-import { WEEKDAY_SHORT, getWeekDates, getWeekday, parseDateString } from '@/utils/dates';
+import { getWeekDates, getWeekday, parseDateString } from '@/utils/dates';
+import { dayKey } from '@/constants/i18n';
+import { useI18n } from '@/hooks/useI18n';
 import { getDayProgress } from '@/utils/statistics';
 
 interface Props {
@@ -19,6 +21,7 @@ export default function WeekStrip({ habits, completions, today, weekStart = 6 }:
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const dates = getWeekDates(today, weekStart);
+  const { t } = useI18n();
   return (
     <View style={styles.row}>
       {dates.map((date) => {
@@ -29,7 +32,7 @@ export default function WeekStrip({ habits, completions, today, weekStart = 6 }:
         const partial = p.completed > 0 && !full;
         return (
           <View key={date} style={[styles.cell, isToday && styles.cellToday, isFuture && { opacity: 0.45 }]}>
-            <Text style={[styles.day, isToday && styles.dayToday]}>{WEEKDAY_SHORT[getWeekday(date)]}</Text>
+            <Text style={[styles.day, isToday && styles.dayToday]}>{t(dayKey(getWeekday(date)))}</Text>
             <View style={[styles.dot, partial && styles.dotPartial, full && styles.dotFull]}>
               {full ? (
                 <Check color="#fff" size={15} />

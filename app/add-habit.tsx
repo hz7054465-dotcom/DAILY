@@ -7,15 +7,18 @@ import type { ThemeColors } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useMemo } from 'react';
 import { HABIT_ICON_KEYS, getHabitIcon } from '@/constants/icons';
-import { WEEKDAY_SHORT, getWeekDisplayOrder } from '@/utils/dates';
+import { getWeekDisplayOrder } from '@/utils/dates';
 import { useHabits } from '@/hooks/useHabits';
 import { useSettings } from '@/hooks/useSettings';
+import { useI18n } from '@/hooks/useI18n';
+import { dayKey } from '@/constants/i18n';
 
 export default function AddHabitScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { habits, addHabit, updateHabit, archiveHabit } = useHabits();
   const { settings } = useSettings();
+  const { t } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const editing = id ? habits.find((h) => h.id === id) : undefined;
@@ -31,8 +34,8 @@ export default function AddHabitScreen() {
 
   const onSave = async () => {
     if (saving) return;
-    if (!name.trim()) return setError('Habit name cannot be empty.');
-    if (days.length === 0) return setError('Select at least one weekday.');
+    if (!name.trim()) return setError(t('habit.errName'));
+    if (days.length === 0) return setError(t('habit.errDays'));
     setError('');
     setSaving(true);
     try {
@@ -41,7 +44,7 @@ export default function AddHabitScreen() {
       else await addHabit(input);
       router.back();
     } catch {
-      setError('Could not save. Please try again.');
+      setError(t('habit.errSave'));
       setSaving(false);
     }
   };
@@ -64,19 +67,19 @@ export default function AddHabitScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <Text style={styles.title}>{editing ? 'Edit habit' : 'New habit'}</Text>
+        <Text style={styles.title}>{editing ? t('habit.edit') : t('habit.new')}</Text>
 
-        <Text style={styles.label}>Name</Text>
+        <Text style={styles.label}>{t('habit.name')}</Text>
         <TextInput
           value={name}
           onChangeText={setName}
-          placeholder="e.g. Read 10 pages"
+          placeholder={t('habit.namePlaceholder')}
           placeholderTextColor={colors.textSecondary}
           style={styles.input}
           maxLength={40}
         />
 
-        <Text style={styles.label}>Icon</Text>
+        <Text style={styles.label}>{t('habit.icon')}</Text>
         <View style={styles.grid}>
           {HABIT_ICON_KEYS.map((key) => {
             const Icon = getHabitIcon(key);
@@ -89,13 +92,13 @@ export default function AddHabitScreen() {
           })}
         </View>
 
-        <Text style={styles.label}>Repeat on</Text>
+        <Text style={styles.label}>{t('habit.repeat')}</Text>
         <View style={styles.daysRow}>
           {getWeekDisplayOrder(settings.weekStartDay).map((d) => {
             const active = days.includes(d);
             return (
               <Pressable key={d} onPress={() => toggleDay(d)} style={[styles.day, active && styles.dayActive]}>
-                <Text style={[styles.dayText, active && { color: '#fff' }]}>{WEEKDAY_SHORT[d]}</Text>
+                <Text style={[styles.dayText, active && { color: '#fff' }]}>{t(dayKey(d))}</Text>
               </Pressable>
             );
           })}
@@ -104,10 +107,10 @@ export default function AddHabitScreen() {
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <Pressable onPress={onSave} style={[styles.save, saving && { opacity: 0.6 }]}>
-          <Text style={styles.saveText}>{editing ? 'Save changes' : 'Save habit'}</Text>
+          <Text style={styles.saveText}>{editing ? t('habit.saveChanges') : t('habit.save')}</Text>
         </Pressable>
         <Pressable onPress={() => router.back()} style={styles.cancel}>
-          <Text style={styles.cancelText}>Cancel</Text>
+          <Text style={styles.cancelText}>{t('habit.cancel')}</Text>
         </Pressable>
         {editing ? (
           <Pressable onPress={onArchive} style={styles.cancel}>

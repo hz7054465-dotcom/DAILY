@@ -4,29 +4,28 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Check } from 'lucide-react-native';
 import { radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/theme';
+import { dayLongKey } from '@/constants/i18n';
 import { useTheme } from '@/hooks/useTheme';
+import { useI18n } from '@/hooks/useI18n';
 import { useSettings } from '@/hooks/useSettings';
 import { ThemeMode } from '@/types/settings';
 import { tap } from '@/utils/haptics';
 
-const MODES: { key: ThemeMode; label: string }[] = [
-  { key: 'dark', label: 'Dark' },
-  { key: 'light', label: 'Light' },
-  { key: 'system', label: 'System' },
-];
-
 const ACCENT_COLORS = ['#8B5CF6', '#3B82F6', '#14B8A6', '#EC4899', '#F97316', '#6366F1'];
-
-const WEEK_STARTS: { key: number; label: string }[] = [
-  { key: 6, label: 'Saturday' },
-  { key: 0, label: 'Sunday' },
-  { key: 1, label: 'Monday' },
-];
+const WEEK_START_OPTIONS = [6, 0, 1];
 
 export default function SettingsScreen() {
   const { colors } = useTheme();
+  const { t } = useI18n();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const { settings, update } = useSettings();
+
+  const modes: { key: ThemeMode; label: string }[] = [
+    { key: 'dark', label: t('settings.dark') },
+    { key: 'light', label: t('settings.light') },
+    { key: 'system', label: t('settings.system') },
+  ];
+  const weekStarts = WEEK_START_OPTIONS.map((d) => ({ key: d, label: t(dayLongKey(d)) }));
 
   const segments = <T extends string | number>(
     options: { key: T; label: string }[],
@@ -55,14 +54,14 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>Settings</Text>
+        <Text style={styles.title}>{t('settings.title')}</Text>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Appearance</Text>
-          <Text style={styles.label}>Mode</Text>
-          {segments(MODES, settings.themeMode, (k) => update({ themeMode: k }))}
+          <Text style={styles.cardTitle}>{t('settings.appearance')}</Text>
+          <Text style={styles.label}>{t('settings.mode')}</Text>
+          {segments(modes, settings.themeMode, (k) => update({ themeMode: k }))}
 
-          <Text style={[styles.label, { marginTop: spacing.md }]}>Accent color</Text>
+          <Text style={[styles.label, { marginTop: spacing.md }]}>{t('settings.accent')}</Text>
           <View style={styles.swatches}>
             {ACCENT_COLORS.map((c) => (
               <Pressable
@@ -80,10 +79,10 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Date</Text>
-          <Text style={styles.label}>Week starts on</Text>
-          {segments(WEEK_STARTS, settings.weekStartDay, (k) => update({ weekStartDay: k }))}
-          <Text style={styles.hint}>Changes saved automatically.</Text>
+          <Text style={styles.cardTitle}>{t('settings.date')}</Text>
+          <Text style={styles.label}>{t('settings.weekStarts')}</Text>
+          {segments(weekStarts, settings.weekStartDay, (k) => update({ weekStartDay: k }))}
+          <Text style={styles.hint}>{t('settings.saved')}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

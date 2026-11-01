@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { radius, spacing } from '@/constants/theme';
 import type { ThemeColors } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
+import { useI18n } from '@/hooks/useI18n';
 import { useHabits } from '@/hooks/useHabits';
 import { useSettings } from '@/hooks/useSettings';
 import { getOverallStats, getWeeklySummary } from '@/utils/statistics';
@@ -12,6 +13,7 @@ import EmptyState from '@/components/EmptyState';
 
 export default function StatisticsScreen() {
   const { colors } = useTheme();
+  const { t } = useI18n();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const { habits, completions, today, loading } = useHabits();
   const { settings } = useSettings();
@@ -27,26 +29,23 @@ export default function StatisticsScreen() {
   const stats = getOverallStats(habits, completions, today);
   const week = getWeeklySummary(habits, completions, today, settings.weekStartDay);
   const cards = [
-    { label: 'Total habits', value: String(stats.totalHabits) },
-    { label: 'Check-ins', value: String(stats.totalCheckIns) },
-    {
-      label: 'Completion rate',
-      value: stats.completionRate === null ? '–' : `${stats.completionRate}%`,
-    },
-    { label: 'Best streak', value: `${stats.bestStreak}d` },
+    { label: t('stats.totalHabits'), value: String(stats.totalHabits) },
+    { label: t('stats.checkIns'), value: String(stats.totalCheckIns) },
+    { label: t('stats.completionRate'), value: stats.completionRate === null ? '–' : `${stats.completionRate}%` },
+    { label: t('stats.bestStreak'), value: `${stats.bestStreak}d` },
   ];
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>Statistics</Text>
+        <Text style={styles.title}>{t('stats.title')}</Text>
         {stats.totalHabits === 0 ? (
-          <EmptyState title="No data yet" subtitle="Create a habit and check it off to see your stats." />
+          <EmptyState title={t('stats.emptyTitle')} subtitle={t('stats.emptySub')} />
         ) : (
           <>
             <View style={styles.grid}>
-              {cards.map((c) => (
-                <View key={c.label} style={styles.stat}>
+              {cards.map((c, i) => (
+                <View key={i} style={styles.stat}>
                   <Text style={styles.statValue}>{c.value}</Text>
                   <Text style={styles.statLabel}>{c.label}</Text>
                 </View>

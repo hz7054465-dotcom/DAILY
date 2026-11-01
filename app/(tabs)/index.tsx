@@ -8,7 +8,9 @@ import { useTheme } from '@/hooks/useTheme';
 import { useMemo } from 'react';
 import { useHabits } from '@/hooks/useHabits';
 import { useSettings } from '@/hooks/useSettings';
-import { formatLongDate, getGreeting } from '@/utils/dates';
+import { useI18n } from '@/hooks/useI18n';
+import type { TKey } from '@/constants/i18n';
+import { formatLongDate, getGreetingPeriod } from '@/utils/dates';
 import {
   buildCompletionMap,
   getBestCurrentStreak,
@@ -26,6 +28,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const { habits, completions, today, loading, toggleCompletion } = useHabits();
   const { settings } = useSettings();
+  const { t, locale } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
@@ -58,22 +61,22 @@ export default function HomeScreen() {
         contentContainerStyle={styles.list}
         ListHeaderComponent={
           <View style={{ marginBottom: spacing.md }}>
-            <Text style={styles.greeting}>{getGreeting()}</Text>
-            <Text style={styles.date}>{formatLongDate(today)}</Text>
+            <Text style={styles.greeting}>{t(`greeting.${getGreetingPeriod()}` as TKey)}</Text>
+            <Text style={styles.date}>{formatLongDate(today, locale)}</Text>
             <View style={{ height: spacing.md }} />
             <ProgressCard progress={progress} bestStreak={bestStreak} />
             <WeekStrip habits={habits} completions={completions} today={today} weekStart={settings.weekStartDay} />
             <View style={styles.sectionRow}>
-              <Text style={styles.section}>Today</Text>
-              {scheduled.length > 0 ? <Text style={styles.sectionCount}>{scheduled.length} habits</Text> : null}
+              <Text style={styles.section}>{t('home.today')}</Text>
+              {scheduled.length > 0 ? <Text style={styles.sectionCount}>{t('home.habitsCount', { n: scheduled.length })}</Text> : null}
             </View>
           </View>
         }
         ListEmptyComponent={
           hasHabits ? (
-            <EmptyState title="Nothing scheduled today" subtitle="Enjoy your day off." />
+            <EmptyState title={t('home.offTitle')} subtitle={t('home.offSub')} />
           ) : (
-            <EmptyState title="No habits yet" subtitle="Tap + to create your first habit." />
+            <EmptyState title={t('home.noHabitsTitle')} subtitle={t('home.noHabitsSub')} />
           )
         }
         renderItem={({ item }) => {

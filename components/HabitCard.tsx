@@ -7,7 +7,8 @@ import { useTheme } from '@/hooks/useTheme';
 import { useMemo } from 'react';
 import { getHabitIcon } from '@/constants/icons';
 import { getAccent, tint } from '@/constants/accents';
-import { formatSchedule } from '@/utils/dates';
+import { scheduleLabel } from '@/utils/schedule';
+import { useI18n } from '@/hooks/useI18n';
 import { useSettings } from '@/hooks/useSettings';
 import { Habit } from '@/types/habit';
 
@@ -21,6 +22,7 @@ interface Props {
 
 export default function HabitCard({ habit, done, streak, onToggle, onLongPress }: Props) {
   const { settings } = useSettings();
+  const { t } = useI18n();
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const Icon = getHabitIcon(habit.icon);
@@ -49,7 +51,7 @@ export default function HabitCard({ habit, done, streak, onToggle, onLongPress }
         <View style={styles.info}>
           <Text style={[styles.name, done && styles.nameDone]} numberOfLines={1}>{habit.name}</Text>
           <View style={styles.metaRow}>
-            <Text style={styles.meta}>{formatSchedule(habit.selectedDays, settings.weekStartDay)}</Text>
+            <Text style={styles.meta}>{scheduleLabel(habit.selectedDays, settings.weekStartDay, t)}</Text>
             {streak > 0 ? (
               <View style={styles.streakRow}>
                 <Flame color={accent} size={12} />
