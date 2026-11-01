@@ -91,6 +91,7 @@ export function HabitsProvider({ children }: { children: React.ReactNode }) {
         selectedDays: [...input.selectedDays].sort((a, b) => a - b),
         createdAt: getTodayString(),
         isArchived: false,
+        order: habitsRef.current.reduce((max, h) => Math.max(max, h.order), -1) + 1,
       };
       await commitHabits([...habitsRef.current, habit]);
     },

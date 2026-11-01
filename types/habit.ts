@@ -11,6 +11,7 @@ export interface Habit {
   selectedDays: number[];
   createdAt: string; // YYYY-MM-DD (local date)
   isArchived: boolean;
+  order: number; // position in the saved list (0-based)
 }
 
 export interface HabitCompletion {

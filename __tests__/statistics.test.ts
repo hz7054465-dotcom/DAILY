@@ -8,6 +8,7 @@ const habit = (over: Partial<Habit> = {}): Habit => ({
   selectedDays: [0, 1, 2, 3, 4, 5, 6],
   createdAt: '2026-10-20',
   isArchived: false,
+  order: 0,
   ...over,
 });
 const done = (habitId: string, date: string): HabitCompletion => ({
