@@ -2,7 +2,10 @@ import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from '
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Plus } from 'lucide-react-native';
-import { colors, radius, spacing } from '@/constants/theme';
+import { radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
+import { useMemo } from 'react';
 import { useHabits } from '@/hooks/useHabits';
 import { useSettings } from '@/hooks/useSettings';
 import { formatLongDate, getGreeting } from '@/utils/dates';
@@ -23,6 +26,8 @@ export default function HomeScreen() {
   const router = useRouter();
   const { habits, completions, today, loading, toggleCompletion } = useHabits();
   const { settings } = useSettings();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
 
   if (loading) {
     return (
@@ -97,7 +102,7 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   center: { alignItems: 'center', justifyContent: 'center' },
   list: { padding: spacing.md, paddingBottom: 120 },

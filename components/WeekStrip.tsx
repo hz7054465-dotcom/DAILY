@@ -1,6 +1,9 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Check } from 'lucide-react-native';
-import { colors, radius } from '@/constants/theme';
+import { radius } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
+import { useMemo } from 'react';
 import { Habit, HabitCompletion } from '@/types/habit';
 import { WEEKDAY_SHORT, getWeekDates, getWeekday, parseDateString } from '@/utils/dates';
 import { getDayProgress } from '@/utils/statistics';
@@ -13,6 +16,8 @@ interface Props {
 }
 
 export default function WeekStrip({ habits, completions, today, weekStart = 6 }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const dates = getWeekDates(today, weekStart);
   return (
     <View style={styles.row}>
@@ -41,7 +46,7 @@ export default function WeekStrip({ habits, completions, today, weekStart = 6 }:
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
   cell: { alignItems: 'center', paddingVertical: 8, paddingHorizontal: 6, borderRadius: radius.md, flex: 1 },
   cellToday: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },

@@ -1,8 +1,9 @@
 import { Tabs } from 'expo-router';
-import { BarChart3, Home } from 'lucide-react-native';
-import { colors } from '@/constants/theme';
+import { BarChart3, Home, Settings as SettingsIcon } from 'lucide-react-native';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function TabsLayout() {
+  const { colors } = useTheme();
   return (
     <Tabs
       screenOptions={{
@@ -27,9 +28,14 @@ export default function TabsLayout() {
         name="statistics"
         options={{
           title: 'Statistics',
-          tabBarIcon: ({ color, size }) => (
-            <BarChart3 color={color} size={size} />
-          ),
+          tabBarIcon: ({ color, size }) => <BarChart3 color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'Settings',
+          tabBarIcon: ({ color, size }) => <SettingsIcon color={color} size={size} />,
         }}
       />
     </Tabs>

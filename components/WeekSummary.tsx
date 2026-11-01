@@ -1,9 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing } from '@/constants/theme';
+import { radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
+import { useMemo } from 'react';
 import { WEEKDAY_SHORT, getWeekday } from '@/utils/dates';
 import { WeekDayStat } from '@/utils/statistics';
 
 export default function WeekSummary({ days, today }: { days: WeekDayStat[]; today: string }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
     <View style={styles.card}>
       <Text style={styles.title}>This week</Text>
@@ -36,7 +41,7 @@ export default function WeekSummary({ days, today }: { days: WeekDayStat[]; toda
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   card: { backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.md, borderWidth: 1, borderColor: colors.border },
   title: { color: colors.text, fontSize: 16, fontWeight: '600', marginBottom: spacing.md },
   row: { flexDirection: 'row', justifyContent: 'space-between' },

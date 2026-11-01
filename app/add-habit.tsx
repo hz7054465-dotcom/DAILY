@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, radius, spacing } from '@/constants/theme';
+import { radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
+import { useMemo } from 'react';
 import { HABIT_ICON_KEYS, getHabitIcon } from '@/constants/icons';
 import { WEEKDAY_SHORT, getWeekDisplayOrder } from '@/utils/dates';
 import { useHabits } from '@/hooks/useHabits';
@@ -13,6 +16,8 @@ export default function AddHabitScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { habits, addHabit, updateHabit, archiveHabit } = useHabits();
   const { settings } = useSettings();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const editing = id ? habits.find((h) => h.id === id) : undefined;
 
   const [name, setName] = useState(editing?.name ?? '');
@@ -114,7 +119,7 @@ export default function AddHabitScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   content: { padding: spacing.lg },
   title: { color: colors.text, fontSize: 26, fontWeight: '700', marginBottom: spacing.md },

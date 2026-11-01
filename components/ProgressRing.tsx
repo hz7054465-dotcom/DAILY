@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
-import { colors } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
 
 interface Props {
   size?: number;
@@ -11,7 +11,9 @@ interface Props {
   color?: string;
 }
 
-export default function ProgressRing({ size = 110, stroke = 10, progress, label, color = colors.primary }: Props) {
+export default function ProgressRing({ size = 110, stroke = 10, progress, label, color }: Props) {
+  const { colors } = useTheme();
+  const ringColor = color ?? colors.primary;
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const value = useRef(new Animated.Value(0)).current;
@@ -40,7 +42,7 @@ export default function ProgressRing({ size = 110, stroke = 10, progress, label,
             cx={size / 2}
             cy={size / 2}
             r={r}
-            stroke={color}
+            stroke={ringColor}
             strokeWidth={stroke}
             strokeLinecap="round"
             fill="none"
@@ -49,11 +51,9 @@ export default function ProgressRing({ size = 110, stroke = 10, progress, label,
           />
         </Svg>
       </View>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={{ position: 'absolute', color: colors.text, fontSize: 24, fontWeight: '700' }}>
+        {label}
+      </Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  label: { position: 'absolute', color: colors.text, fontSize: 24, fontWeight: '700' },
-});

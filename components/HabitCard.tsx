@@ -1,7 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Check, Flame } from 'lucide-react-native';
-import { colors, radius, spacing } from '@/constants/theme';
+import { radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
+import { useMemo } from 'react';
 import { getHabitIcon } from '@/constants/icons';
 import { getAccent, tint } from '@/constants/accents';
 import { formatSchedule } from '@/utils/dates';
@@ -18,6 +21,8 @@ interface Props {
 
 export default function HabitCard({ habit, done, streak, onToggle, onLongPress }: Props) {
   const { settings } = useSettings();
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const Icon = getHabitIcon(habit.icon);
   const accent = getAccent(habit.icon);
   const press = useRef(new Animated.Value(1)).current;
@@ -63,7 +68,7 @@ export default function HabitCard({ habit, done, streak, onToggle, onLongPress }
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   card: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.md, borderWidth: 1, borderColor: colors.border, marginBottom: spacing.sm },
   cardDone: { opacity: 0.85 },
   iconBox: { width: 46, height: 46, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },

@@ -1,6 +1,9 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Flame } from 'lucide-react-native';
-import { colors, radius, spacing } from '@/constants/theme';
+import { radius, spacing } from '@/constants/theme';
+import type { ThemeColors } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
+import { useMemo } from 'react';
 import { DayProgress } from '@/utils/statistics';
 import ProgressRing from '@/components/ProgressRing';
 
@@ -13,6 +16,8 @@ function message(p: DayProgress): string {
 }
 
 export default function ProgressCard({ progress, bestStreak }: { progress: DayProgress; bestStreak: number }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const ratio = progress.total === 0 ? 0 : progress.completed / progress.total;
   const complete = progress.total > 0 && ratio >= 1;
   return (
@@ -39,7 +44,7 @@ export default function ProgressCard({ progress, bestStreak }: { progress: DayPr
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   card: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.md, borderWidth: 1, borderColor: colors.border },
   info: { flex: 1, marginLeft: spacing.md },
   label: { color: colors.textSecondary, fontSize: 13 },
