@@ -97,9 +97,10 @@ export interface WeekDayStat {
 export function getWeeklySummary(
   habits: Habit[],
   completions: HabitCompletion[],
-  today: string = getTodayString()
+  today: string = getTodayString(),
+  weekStart: number = 6
 ): WeekDayStat[] {
-  return getWeekDates(today).map((date) => {
+  return getWeekDates(today, weekStart).map((date) => {
     const { completed, total } = getDayProgress(habits, completions, date);
     return { date, completed, total, isFuture: date > today };
   });

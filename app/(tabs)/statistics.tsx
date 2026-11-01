@@ -2,6 +2,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-nat
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, radius, spacing } from '@/constants/theme';
 import { useHabits } from '@/hooks/useHabits';
+import { useSettings } from '@/hooks/useSettings';
 import { getOverallStats, getWeeklySummary } from '@/utils/statistics';
 import WeekSummary from '@/components/WeekSummary';
 import EmptyState from '@/components/EmptyState';
@@ -17,6 +18,7 @@ function StatCard({ label, value }: { label: string; value: string }) {
 
 export default function StatisticsScreen() {
   const { habits, completions, today, loading } = useHabits();
+  const { settings } = useSettings();
 
   if (loading) {
     return (
@@ -27,7 +29,7 @@ export default function StatisticsScreen() {
   }
 
   const stats = getOverallStats(habits, completions, today);
-  const week = getWeeklySummary(habits, completions, today);
+  const week = getWeeklySummary(habits, completions, today, settings.weekStartDay);
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>

@@ -4,13 +4,15 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, radius, spacing } from '@/constants/theme';
 import { HABIT_ICON_KEYS, getHabitIcon } from '@/constants/icons';
-import { WEEK_DISPLAY_ORDER, WEEKDAY_SHORT } from '@/utils/dates';
+import { WEEKDAY_SHORT, getWeekDisplayOrder } from '@/utils/dates';
 import { useHabits } from '@/hooks/useHabits';
+import { useSettings } from '@/hooks/useSettings';
 
 export default function AddHabitScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { habits, addHabit, updateHabit, archiveHabit } = useHabits();
+  const { settings } = useSettings();
   const editing = id ? habits.find((h) => h.id === id) : undefined;
 
   const [name, setName] = useState(editing?.name ?? '');
@@ -84,7 +86,7 @@ export default function AddHabitScreen() {
 
         <Text style={styles.label}>Repeat on</Text>
         <View style={styles.daysRow}>
-          {WEEK_DISPLAY_ORDER.map((d) => {
+          {getWeekDisplayOrder(settings.weekStartDay).map((d) => {
             const active = days.includes(d);
             return (
               <Pressable key={d} onPress={() => toggleDay(d)} style={[styles.day, active && styles.dayActive]}>

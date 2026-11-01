@@ -9,10 +9,11 @@ interface Props {
   habits: Habit[];
   completions: HabitCompletion[];
   today: string;
+  weekStart?: number;
 }
 
-export default function WeekStrip({ habits, completions, today }: Props) {
-  const dates = getWeekDates(today);
+export default function WeekStrip({ habits, completions, today, weekStart = 6 }: Props) {
+  const dates = getWeekDates(today, weekStart);
   return (
     <View style={styles.row}>
       {dates.map((date) => {

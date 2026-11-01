@@ -5,6 +5,7 @@ import { colors, radius, spacing } from '@/constants/theme';
 import { getHabitIcon } from '@/constants/icons';
 import { getAccent, tint } from '@/constants/accents';
 import { formatSchedule } from '@/utils/dates';
+import { useSettings } from '@/hooks/useSettings';
 import { Habit } from '@/types/habit';
 
 interface Props {
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export default function HabitCard({ habit, done, streak, onToggle, onLongPress }: Props) {
+  const { settings } = useSettings();
   const Icon = getHabitIcon(habit.icon);
   const accent = getAccent(habit.icon);
   const press = useRef(new Animated.Value(1)).current;
@@ -42,7 +44,7 @@ export default function HabitCard({ habit, done, streak, onToggle, onLongPress }
         <View style={styles.info}>
           <Text style={[styles.name, done && styles.nameDone]} numberOfLines={1}>{habit.name}</Text>
           <View style={styles.metaRow}>
-            <Text style={styles.meta}>{formatSchedule(habit.selectedDays)}</Text>
+            <Text style={styles.meta}>{formatSchedule(habit.selectedDays, settings.weekStartDay)}</Text>
             {streak > 0 ? (
               <View style={styles.streakRow}>
                 <Flame color={accent} size={12} />

@@ -48,15 +48,15 @@ export function getWeekday(value: string): number {
 }
 
 /** The Saturday that starts the week containing the given date. */
-export function getWeekStart(value: string): string {
+export function getWeekStart(value: string, weekStart: number = WEEK_START_DAY): string {
   const weekday = getWeekday(value);
-  const diff = (weekday - WEEK_START_DAY + 7) % 7;
+  const diff = (weekday - weekStart + 7) % 7;
   return addDays(value, -diff);
 }
 
 /** The 7 dates of the week containing the given date, Saturday first. */
-export function getWeekDates(value: string): string[] {
-  const start = getWeekStart(value);
+export function getWeekDates(value: string, weekStart: number = WEEK_START_DAY): string[] {
+  const start = getWeekStart(value, weekStart);
   return Array.from({ length: 7 }, (_, i) => addDays(start, i));
 }
 
@@ -87,9 +87,14 @@ export function generateId(): string {
 }
 
 /** 'Every day' or 'Sat · Mon · Wed' (week order starts on Saturday). */
-export function formatSchedule(days: number[]): string {
+export function formatSchedule(days: number[], weekStart: number = WEEK_START_DAY): string {
   if (days.length === 7) return 'Every day';
-  return WEEK_DISPLAY_ORDER.filter((d) => days.includes(d))
+  return getWeekDisplayOrder(weekStart).filter((d) => days.includes(d))
     .map((d) => WEEKDAY_SHORT[d])
     .join(' · ');
+}
+
+/** Weekday numbers in display order, starting from the given day. */
+export function getWeekDisplayOrder(weekStart: number = WEEK_START_DAY): number[] {
+  return Array.from({ length: 7 }, (_, i) => (weekStart + i) % 7);
 }

@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Plus } from 'lucide-react-native';
 import { colors, radius, spacing } from '@/constants/theme';
 import { useHabits } from '@/hooks/useHabits';
+import { useSettings } from '@/hooks/useSettings';
 import { formatLongDate, getGreeting } from '@/utils/dates';
 import {
   buildCompletionMap,
@@ -21,6 +22,7 @@ import EmptyState from '@/components/EmptyState';
 export default function HomeScreen() {
   const router = useRouter();
   const { habits, completions, today, loading, toggleCompletion } = useHabits();
+  const { settings } = useSettings();
 
   if (loading) {
     return (
@@ -55,7 +57,7 @@ export default function HomeScreen() {
             <Text style={styles.date}>{formatLongDate(today)}</Text>
             <View style={{ height: spacing.md }} />
             <ProgressCard progress={progress} bestStreak={bestStreak} />
-            <WeekStrip habits={habits} completions={completions} today={today} />
+            <WeekStrip habits={habits} completions={completions} today={today} weekStart={settings.weekStartDay} />
             <View style={styles.sectionRow}>
               <Text style={styles.section}>Today</Text>
               {scheduled.length > 0 ? <Text style={styles.sectionCount}>{scheduled.length} habits</Text> : null}
