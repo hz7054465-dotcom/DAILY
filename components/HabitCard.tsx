@@ -18,9 +18,10 @@ interface Props {
   streak: number;
   onToggle: () => void;
   onLongPress?: () => void;
+  index?: number;
 }
 
-export default function HabitCard({ habit, done, streak, onToggle, onLongPress }: Props) {
+export default function HabitCard({ habit, done, streak, onToggle, onLongPress, index }: Props) {
   const { settings } = useSettings();
   const { t } = useI18n();
   const { colors } = useTheme();
@@ -45,6 +46,7 @@ export default function HabitCard({ habit, done, streak, onToggle, onLongPress }
         onPressOut={() => to(1)}
         style={[styles.card, done && styles.cardDone]}
       >
+        {index !== undefined ? <Text style={styles.index}>{index}</Text> : null}
         <View style={[styles.iconBox, { backgroundColor: tint(accent) }]}>
           <Icon color={accent} size={22} />
         </View>
@@ -73,6 +75,7 @@ export default function HabitCard({ habit, done, streak, onToggle, onLongPress }
 const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   card: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.md, borderWidth: 1, borderColor: colors.border, marginBottom: spacing.sm },
   cardDone: { opacity: 0.85 },
+  index: { width: 22, color: colors.textSecondary, opacity: 0.6, fontSize: 13, fontWeight: '600' },
   iconBox: { width: 46, height: 46, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
   info: { flex: 1, marginHorizontal: spacing.md },
   name: { color: colors.text, fontSize: 16, fontWeight: '600' },

@@ -79,11 +79,12 @@ export default function HomeScreen() {
             <EmptyState title={t('home.noHabitsTitle')} subtitle={t('home.noHabitsSub')} />
           )
         }
-        renderItem={({ item }) => {
+        renderItem={({ item, index }) => {
           const done = map.get(item.id)?.has(today) ?? false;
           return (
             <HabitCard
               habit={item}
+              index={index + 1}
               done={done}
               streak={getCurrentStreak(item, map.get(item.id), today)}
               onToggle={() => handleToggle(item.id, done)}
