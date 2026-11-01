@@ -1,4 +1,5 @@
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import ReorderableList, { reorderItems } from 'react-native-reorderable-list';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Plus } from 'lucide-react-native';
@@ -26,7 +27,7 @@ import EmptyState from '@/components/EmptyState';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { habits, completions, today, loading, toggleCompletion } = useHabits();
+  const { habits, completions, today, loading, toggleCompletion, reorderHabits } = useHabits();
   const { settings } = useSettings();
   const { t, locale } = useI18n();
   const { colors } = useTheme();
@@ -55,9 +56,12 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
-      <FlatList
+      <ReorderableList
         data={scheduled}
         keyExtractor={(h) => h.id}
+        onReorder={({ from, to }) =>
+          reorderHabits(reorderItems(scheduled, from, to).map((h) => h.id))
+        }
         contentContainerStyle={styles.list}
         ListHeaderComponent={
           <View style={{ marginBottom: spacing.md }}>
@@ -88,7 +92,6 @@ export default function HomeScreen() {
               done={done}
               streak={getCurrentStreak(item, map.get(item.id), today)}
               onToggle={() => handleToggle(item.id, done)}
-              onLongPress={() => router.push({ pathname: '/add-habit', params: { id: item.id } })}
             />
           );
         }}

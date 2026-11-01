@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { HabitsProvider } from '@/hooks/useHabits';
 import { SettingsProvider, useSettings } from '@/hooks/useSettings';
@@ -29,10 +30,12 @@ function ThemedStack() {
 
 export default function RootLayout() {
   return (
-    <SettingsProvider>
-      <HabitsProvider>
-        <ThemedStack />
-      </HabitsProvider>
-    </SettingsProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SettingsProvider>
+        <HabitsProvider>
+          <ThemedStack />
+        </HabitsProvider>
+      </SettingsProvider>
+    </GestureHandlerRootView>
   );
 }

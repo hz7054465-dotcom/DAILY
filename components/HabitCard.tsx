@@ -17,11 +17,10 @@ interface Props {
   done: boolean;
   streak: number;
   onToggle: () => void;
-  onLongPress?: () => void;
   index?: number;
 }
 
-export default function HabitCard({ habit, done, streak, onToggle, onLongPress, index }: Props) {
+export default function HabitCard({ habit, done, streak, onToggle, index }: Props) {
   const { settings } = useSettings();
   const { t } = useI18n();
   const { colors } = useTheme();
@@ -41,7 +40,6 @@ export default function HabitCard({ habit, done, streak, onToggle, onLongPress, 
     <Animated.View style={{ transform: [{ scale: press }] }}>
       <Pressable
         onPress={onToggle}
-        onLongPress={onLongPress}
         onPressIn={() => to(0.97)}
         onPressOut={() => to(1)}
         style={[styles.card, done && styles.cardDone]}

@@ -32,6 +32,7 @@ interface HabitsContextValue {
   updateHabit: (id: string, input: NewHabitInput) => Promise<void>;
   archiveHabit: (id: string) => Promise<void>;
   toggleCompletion: (habitId: string) => Promise<void>;
+  reorderHabits: (orderedVisibleIds: string[]) => Promise<void>;
 }
 
 const HabitsContext = createContext<HabitsContextValue | null>(null);
@@ -127,6 +128,22 @@ export function HabitsProvider({ children }: { children: React.ReactNode }) {
     [commitHabits]
   );
 
+  // Reorders only the habits shown today; the others keep their slots.
+  const reorderHabits = useCallback(
+    async (orderedVisibleIds: string[]) => {
+      const current = habitsRef.current;
+      const byId = new Map(current.map((h) => [h.id, h]));
+      const queue = orderedVisibleIds
+        .map((id) => byId.get(id))
+        .filter((h): h is Habit => !!h);
+      const visible = new Set(queue.map((h) => h.id));
+      let i = 0;
+      const next = current.map((h) => (visible.has(h.id) ? queue[i++] : h));
+      await commitHabits(next.map((h, idx) => ({ ...h, order: idx })));
+    },
+    [commitHabits]
+  );
+
   const toggleCompletion = useCallback(
     async (habitId: string) => {
       const date = getTodayString();
@@ -156,8 +173,9 @@ export function HabitsProvider({ children }: { children: React.ReactNode }) {
       updateHabit,
       archiveHabit,
       toggleCompletion,
+      reorderHabits,
     }),
-    [habits, completions, today, loading, addHabit, updateHabit, archiveHabit, toggleCompletion]
+    [habits, completions, today, loading, addHabit, updateHabit, archiveHabit, toggleCompletion, reorderHabits]
   );
 
   return <HabitsContext.Provider value={value}>{children}</HabitsContext.Provider>;
